@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -34,8 +36,13 @@ public class UserController {
         log.info("Received request to login user: {}", loginDTO.getEmail());
         String token = userService.loginUser(loginDTO);
 
-        // [Prajwal]:UC5:Provide token string mapping back to frontend
         ResponseDTO responseDTO = new ResponseDTO("User logged in successfully", token);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<ResponseDTO> getUserProfile(Principal principal) {
+        log.info("Accessing profile for authenticated user: {}", principal.getName());
+        ResponseDTO responseDTO = new ResponseDTO("Token Validated! Profile Accessed.", "Logged in as: " + principal.getName());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }
