@@ -23,24 +23,35 @@ public class NoteController {
     private final NoteService noteService;
     @PostMapping("/create")
     public ResponseEntity<ResponseDTO> createNote(@Valid @RequestBody NoteDTO noteDTO, Principal principal) {
+        Note savedNote = noteService.createNote(noteDTO, principal.getName());
+        return new ResponseEntity<>(new ResponseDTO("Note Created Successfully", savedNote.getId()), HttpStatus.CREATED);
 
-        String userEmail = principal.getName();
-        log.info("Request to create note received by: {}", userEmail);
+    }
 
-        Note savedNote = noteService.createNote(noteDTO, userEmail);
+    @GetMapping("/all")
+    public ResponseEntity<ResponseDTO> getAllNotes(Principal principal) {
+        List<Note> notesList = noteService.getAllNotes(principal.getName());
+        return new ResponseEntity<>(new ResponseDTO("Notes Fetched Successfully", notesList), HttpStatus.OK);
+    }
 
-        ResponseDTO responseDTO = new ResponseDTO("Note Created Successfully", savedNote.getId());
-        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+    @PutMapping("/{noteId}/pin")
+    public ResponseEntity<ResponseDTO> togglePin(@PathVariable Long noteId, Principal principal) {
+        Note note = noteService.togglePin(noteId, principal.getName());
+        String msg = note.isPinned() ? "Note Pinned" : "Note Unpinned";
+        return new ResponseEntity<>(new ResponseDTO(msg, note.getId()), HttpStatus.OK);
+    }
 
-        @GetMapping("/all")
-        public ResponseEntity<ResponseDTO> getAllNotes(Principal principal) {
-            String userEmail = principal.getName();
-            log.info("Request to fetch all notes received from: {}", userEmail);
+    @PutMapping("/{noteId}/archive")
+    public ResponseEntity<ResponseDTO> toggleArchive(@PathVariable Long noteId, Principal principal) {
+        Note note = noteService.toggleArchive(noteId, principal.getName());
+        String msg = note.isArchived() ? "Note Archived" : "Note Unarchived";
+        return new ResponseEntity<>(new ResponseDTO(msg, note.getId()), HttpStatus.OK);
+    }
 
-            List<Note> notesList = noteService.getAllNotes(userEmail);
-
-            ResponseDTO responseDTO = new ResponseDTO("Notes Fetched Successfully", notesList);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-        }
+    @PutMapping("/{noteId}/trash")
+    public ResponseEntity<ResponseDTO> toggleTrash(@PathVariable Long noteId, Principal principal) {
+        Note note = noteService.toggleTrash(noteId, principal.getName());
+        String msg = note.isTrashed() ? "Note moved to Trash" : "Note recovered from Trash";
+        return new ResponseEntity<>(new ResponseDTO(msg, note.getId()), HttpStatus.OK);
     }
 }
