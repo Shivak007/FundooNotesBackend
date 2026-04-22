@@ -1,5 +1,6 @@
 package com.bridgelabz.controller;
 
+import com.bridgelabz.dto.request.UserLoginDTO;
 import com.bridgelabz.dto.request.UserRegistrationDTO;
 import com.bridgelabz.dto.response.ResponseDTO;
 import com.bridgelabz.entity.User;
@@ -26,5 +27,15 @@ public class UserController {
         ResponseDTO responseDTO = new ResponseDTO("User registered successfully", user.getId());
 
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ResponseDTO> loginUser(@Valid @RequestBody UserLoginDTO loginDTO) {
+        log.info("Received request to login user: {}", loginDTO.getEmail());
+        String token = userService.loginUser(loginDTO);
+
+        // [Prajwal]:UC5:Provide token string mapping back to frontend
+        ResponseDTO responseDTO = new ResponseDTO("User logged in successfully", token);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }
