@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/notes")
@@ -30,5 +31,16 @@ public class NoteController {
 
         ResponseDTO responseDTO = new ResponseDTO("Note Created Successfully", savedNote.getId());
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+
+        @GetMapping("/all")
+        public ResponseEntity<ResponseDTO> getAllNotes(Principal principal) {
+            String userEmail = principal.getName();
+            log.info("Request to fetch all notes received from: {}", userEmail);
+
+            List<Note> notesList = noteService.getAllNotes(userEmail);
+
+            ResponseDTO responseDTO = new ResponseDTO("Notes Fetched Successfully", notesList);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        }
     }
 }

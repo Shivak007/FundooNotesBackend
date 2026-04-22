@@ -10,6 +10,8 @@ import com.bridgelabz.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService {
@@ -30,5 +32,12 @@ public class NoteServiceImpl implements NoteService {
         note.setUserId(user.getId());
 
         return noteRepository.save(note);
+    }
+    @Override
+    public List<Note> getAllNotes(String tokenEmail) {
+        User user = userRepository.findByEmail(tokenEmail)
+                .orElseThrow(() -> new UserException("User not found!"));
+
+        return noteRepository.findAllByUserId(user.getId());
     }
 }
